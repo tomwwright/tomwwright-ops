@@ -1,0 +1,7 @@
+webapp_name: tinydude-webapp
+webapp_domains:
+  - tinydude.tomwwright.com
+webapp_env:
+  GOOGLE_ANALYTICS: UA-113988121-1
+
+build_artifact: tinydude-build.zip

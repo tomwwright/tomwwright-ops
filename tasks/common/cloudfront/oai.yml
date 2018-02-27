@@ -1,0 +1,8 @@
+- name: create Webapps Cloudfront OAI
+  command: aws cloudfront create-cloud-front-origin-access-identity --cloud-front-origin-access-identity-config CallerReference=ansible-{{ webapp_bucket }}-oai,Comment={{ webapp_bucket }}-oai
+  register: cloudfront_oai_result
+
+- name: parse Cloudfront OAI response
+  set_fact:
+    cloudfront_oai_id: "{{ cloudfront_oai_result.stdout | from_json | json_query('CloudFrontOriginAccessIdentity.Id')}}"
+    cloudfront_oai_s3_user: "{{ cloudfront_oai_result.stdout | from_json | json_query('CloudFrontOriginAccessIdentity.S3CanonicalUserId')}}"

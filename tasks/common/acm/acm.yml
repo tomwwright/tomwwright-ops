@@ -1,0 +1,21 @@
+- name: query ACM for facts about the requested certificate
+  import_tasks: tasks/common/acm/facts.yml
+
+- name: request ACM certificate
+  command: aws acm request-certificate --region us-east-1 --domain-name {{ acm_certificate_domain }} --validation-method DNS {{ (acm_certificate_extra_domains is defined and (acm_certificate_extra_domains | length) > 0) | ternary('--subject-alternative-names ' + (acm_certificate_extra_domains | join(" ")), '') }}
+  register: acm_certificate_request
+  when: acm_certificate_arn == ''
+
+- name: requery ACM for facts about the requested certificate
+  import_tasks: tasks/common/acm/facts.yml
+  when: acm_certificate_arn == ''
+
+- name: update Route 53 with the validation CNAME for the ACM certificate
+  route53:
+    zone: "{{ public_dns_zone }}"
+    record: "{{ acm_certificate.DomainValidationOptions[0].ResourceRecord.Name }}"
+    type: CNAME
+    value: "{{ acm_certificate.DomainValidationOptions[0].ResourceRecord.Value }}"
+    state: present
+    overwrite: true
+  when: public_dns_zone is defined

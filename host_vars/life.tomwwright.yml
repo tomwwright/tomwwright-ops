@@ -1,0 +1,7 @@
+webapp_name: life-webapp
+webapp_domains:
+  - life.tomwwright.com
+webapp_env:
+  GOOGLE_ANALYTICS: xxx
+
+build_artifact: life-build.zip

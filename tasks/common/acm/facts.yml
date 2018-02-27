@@ -1,0 +1,21 @@
+- name: query ACM for facts about the certificate
+  command: aws acm list-certificates --region us-east-1 --no-paginate
+  changed_when: false
+  register: acm_certificate_list
+
+- name: extract the certificate ARN
+  set_fact:
+    acm_certificate_arn: "{{ acm_certificate_list.stdout | from_json | json_query(query) }}"
+  vars:
+    query: CertificateSummaryList[?DomainName=='{{ acm_certificate_domain }}'] | [0].CertificateArn
+
+- name: describe certificate
+  command: aws acm describe-certificate --region us-east-1 --certificate-arn {{ acm_certificate_arn }}
+  changed_when: false
+  register: describe_certificate_request
+  when: acm_certificate_arn != ''
+
+- name: transform AWS CLI response
+  set_fact:
+    acm_certificate: "{{ describe_certificate_request.stdout | from_json | json_query('Certificate') }}"
+  when: acm_certificate_arn != ''

@@ -1,0 +1,109 @@
+{
+  "Comment": "{{ cloudfront_distribution_name }}",
+  "CallerReference": "ansible-{{ cloudfront_distribution_name }}",
+  "DefaultRootObject": "index.html",
+  "Aliases": {
+    "Items": ["{{ webapp_domains | join('", "') }}"],
+    "Quantity": {{ webapp_domains | length }}
+  },
+  "Origins": {
+    "Items": [
+      {
+        "S3OriginConfig": {
+          "OriginAccessIdentity": "origin-access-identity/cloudfront/{{ cloudfront_oai_id }}"
+        },
+        "OriginPath": "/{{ webapp_name }}",
+        "CustomHeaders": {
+          "Quantity": 0
+        },
+        "Id": "{{ cloudfront_distribution_name }}",
+        "DomainName": "{{ webapp_bucket }}.s3.amazonaws.com"
+      }
+    ],
+    "Quantity": 1
+  },
+  "DefaultCacheBehavior": {
+      "TrustedSigners": {
+          "Enabled": false,
+          "Quantity": 0
+      },
+      "LambdaFunctionAssociations": {
+          "Quantity": 0
+      },
+      "TargetOriginId": "{{ cloudfront_distribution_name }}",
+      "ViewerProtocolPolicy": "redirect-to-https",
+      "ForwardedValues": {
+          "Headers": {
+              "Quantity": 0
+          },
+          "Cookies": {
+              "Forward": "none"
+          },
+          "QueryStringCacheKeys": {
+              "Quantity": 0
+          },
+          "QueryString": false
+      },
+      "MaxTTL": 31536000,
+      "SmoothStreaming": false,
+      "DefaultTTL": 86400,
+      "AllowedMethods": {
+          "Items": [
+              "HEAD",
+              "GET"
+          ],
+          "CachedMethods": {
+              "Items": [
+                  "HEAD",
+                  "GET"
+              ],
+              "Quantity": 2
+          },
+          "Quantity": 2
+      },
+      "MinTTL": 0,
+      "Compress": true
+  },
+  "CustomErrorResponses": {
+    "Quantity": 2,
+    "Items": [
+      {
+        "ErrorCode": 403,
+        "ResponsePagePath": "/index.html",
+        "ResponseCode": "200",
+        "ErrorCachingMinTTL": 300
+      },
+      {
+        "ErrorCode": 404,
+        "ResponsePagePath": "/index.html",
+        "ResponseCode": "200",
+        "ErrorCachingMinTTL": 300
+      }
+    ]
+  },
+  "CacheBehaviors": {
+    "Quantity": 0
+  },
+  "IsIPV6Enabled": true,
+  "Logging": {
+    "Bucket": "",
+    "Prefix": "",
+    "Enabled": false,
+    "IncludeCookies": false
+  },
+  "PriceClass": "PriceClass_All",
+  "Enabled": true,
+  "ViewerCertificate": {
+    "ACMCertificateArn": "{{ acm_certificate_arn }}",
+    "MinimumProtocolVersion": "TLSv1",
+    "SSLSupportMethod": "sni-only"
+  },
+  "HttpVersion": "http2",
+  "Restrictions": {
+      "GeoRestriction": {
+          "RestrictionType": "none",
+          "Quantity": 0
+      }
+  },
+
+}

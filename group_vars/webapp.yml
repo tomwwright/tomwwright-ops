@@ -1,0 +1,6 @@
+webapp_name: "{{ project }}-webapp"
+webapp_bucket: "{{ project }}-webapps-{{ environment_name }}"
+webapp_domains:
+  - "{{ environment_url_prefix }}{{ public_dns_zone }}"
+webapp_cloudfront_distribution_name: "{{ webapp_name }}-{{ environment_name }}"
+webapp_env: {}

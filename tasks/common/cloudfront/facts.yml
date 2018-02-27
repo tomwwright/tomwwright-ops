@@ -1,0 +1,12 @@
+- name: list CloudFront distributions
+  command: aws cloudfront list-distributions
+  changd_when: false
+  register: cloudfront_distributions
+
+- name: find existing CloudFront distribution
+  set_fact:
+    cloudfront_distribution_id: "{{ cloudfront_distributions.stdout | from_json | json_query(id_query) }}"
+    cloudfront_distribution_domain: "{{ cloudfront_distributions.stdout | from_json | json_query(domain_query) }}"
+  vars:
+    id_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].Comment"
+    domain_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].DomainName"

@@ -1,0 +1,21 @@
+# webapp.yml
+# ---
+# webapp that performs a rollback for `webapp` hosts, providing AWS credentials in the environment
+
+- hosts: webapp
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    AWS_REGION: "{{ aws_region }}"
+  tasks:
+
+    - name: get facts for the CloudFront distribution
+      import_tasks: tasks/common/cloudfront/facts.yml
+      vars:
+        cloudfront_distribution_name: "{{ webapp_cloudfront_distribution_name }}"
+
+    - name: rollback in S3
+      import_tasks: tasks/webapp/rollback.yml
+
+    - name: invalidate CloudFront distribution
+      command: aws cloudfront create-invalidation --distribution-id {{ cloudfront_distribution_id }} --paths /*

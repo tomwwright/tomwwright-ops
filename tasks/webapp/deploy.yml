@@ -1,0 +1,33 @@
+- name: create release directory
+  file:
+    path: temp/{{ webapp_name }}/release
+    state: directory
+
+- name: unzip the build
+  unarchive:
+    src: temp/{{ webapp_name }}/{{ build_artifact }}
+    dest: temp/{{ webapp_name }}/release
+
+- name: write release.env environment configuration to file
+  lineinfile:
+    dest: temp/{{ webapp_name }}/release.env
+    regexp: "^{{ item.key }}=.*"
+    line: "{{ item.key }}={{ item.value }}"
+    create: yes
+  with_dict: "{{ webapp_env }}"
+
+- name: inject environment configuration to create release
+  command: ./tasks/webapp/files/inject_release_config.sh temp/{{ webapp_name }}/release.env temp/{{ webapp_name }}/release
+
+# --------------
+
+- name: sync rollback with current deployment
+  command: aws s3 sync --delete --exact-timestamps s3://{{ webapp_bucket }}/{{ webapp_name }}/ s3://{{ webapp_bucket }}/rollback/{{ webapp_name }}/
+
+- name: sync current deployment with new build
+  command: aws s3 sync --delete --exact-timestamps temp/{{ webapp_name }}/release/ s3://{{ webapp_bucket }}/{{ webapp_name }}/
+
+- name: remove temp directory
+  file:
+    path: temp/{{ webapp_name }}
+    state: absent

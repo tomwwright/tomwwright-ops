@@ -1,0 +1,7 @@
+webapp_name: folio-site
+webapp_domains:
+  - tomwwright.com
+webapp_env:
+  GOOGLE_ANALYTICS: xxx
+
+build_artifact: folio-build.zip

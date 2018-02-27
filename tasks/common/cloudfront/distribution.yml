@@ -1,0 +1,10 @@
+- name: query for CloudFront distribution
+  import_tasks: tasks/common/cloudfront/facts.yml
+
+- name: create CloudFront distribution
+  command: aws cloudfront create-distribution --distribution-config '{{ lookup('template', cloudfront_distribution_template) | to_json }}'
+  when: cloudfront_distribution_id == ''
+
+- name: requery for CloudFront distribution
+  import_tasks: tasks/common/cloudfront/facts.yml
+  when: cloudfront_distribution_id == ''

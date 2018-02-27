@@ -1,0 +1,39 @@
+- name: locate build artifact in S3 archive
+  s3:
+    mode: list
+    bucket: "{{ build_archive_bucket }}"
+    prefix: "{{ build_name }}/builds/"
+    aws_access_key: "{{ build_access_key }}"
+    aws_secret_key: "{{ build_secret_key }}"
+  register: build_artifacts
+
+# Usage of "to_json | from_json" fixes bug with "contains" and arrays in Ansible (expected one of: ['array', 'string'], received: "unknown")
+# See: https://github.com/ansible/ansible/issues/27299
+- set_fact:
+    build_artifact: "{{ build_artifacts.s3_keys | to_json | from_json | json_query(query) | regex_replace('^.*/', '') }}"
+  vars:
+    query: "[? contains(@, '{{ build_name }}-build-{{ build_number }}')] | [0]"
+
+- fail:
+    msg: "build version {{ build_number }} for {{ build_name }} not available in archives!"
+  when: build_artifact == "" or build_artifact == "None"
+
+- name: create temp directory
+  file:
+    path: temp/{{ build_name }}
+    state: directory
+
+- name: download build artifact
+  s3:
+    mode: get
+    bucket: "{{ build_archive_bucket }}"
+    object: "{{ build_name }}/builds/{{ build_artifact }}"
+    dest: temp/{{ build_name }}/{{ build_artifact }}
+    aws_access_key: "{{ build_access_key }}"
+    aws_secret_key: "{{ build_secret_key }}"
+
+- name: unpack build artifact
+  include_tasks: unpack_build.yml
+
+- set_fact:
+    git_commit: "{{ build_artifact | regex_replace('^.*-build-[0-9]*-([a-f0-9]*).*$', '\\1')}}"

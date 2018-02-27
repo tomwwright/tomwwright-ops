@@ -1,0 +1,16 @@
+# webapp.yml
+# ---
+# webapp that sets up the infrastructure for `webapp` hosts, providing AWS credentials in the environment
+
+- hosts: webapp
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    AWS_REGION: "{{ aws_region }}"
+  tasks:
+
+    - name: setup SSL certificate
+      import_tasks: tasks/common/acm/acm.yml
+
+    - name: setup infrastructure
+      import_tasks: tasks/webapp/setup.yml

@@ -1,0 +1,25 @@
+# webapp.yml
+# ---
+# webapp that deploys `webapp` hosts, providing AWS credentials in the environment
+
+- hosts: webapp
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    AWS_REGION: "{{ aws_region }}"
+  tasks:
+
+    - name: get facts for the CloudFront distribution
+      import_tasks: tasks/common/cloudfront/facts.yml
+      vars:
+        cloudfront_distribution_name: "{{ webapp_cloudfront_distribution_name }}"
+
+    - name: download build
+      import_tasks: tasks/common/get_s3_build.yml
+      when: build_artifact is not defined
+
+    - name: deploy to S3
+      import_tasks: tasks/webapp/deploy.yml
+
+    - name: invalidate CloudFront distribution
+      command: aws cloudfront create-invalidation --distribution-id {{ cloudfront_distribution_id }} --paths /*

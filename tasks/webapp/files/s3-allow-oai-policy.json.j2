@@ -1,0 +1,18 @@
+{
+    "Version": "2008-10-17",
+    "Id": "PolicyForCloudFrontPrivateContent",
+    "Statement": [
+      {
+          "Sid": "CloudfrontGetObject - {{ cloudfront_oai_id }}",
+          "Effect": "Allow",
+          "Principal": {
+            "CanonicalUser":"{{ cloudfront_oai_s3_user }}"
+          },
+          "Action": [
+            "s3:GetObject",
+            "s3:ListBucket"
+          ],
+          "NotResource": "arn:aws:s3:::{{ webapp_bucket }}/rollback/*"
+      }
+    ]
+}

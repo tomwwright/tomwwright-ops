@@ -1,0 +1,33 @@
+- name: create Cloudfront Origin Access Identity
+  import_tasks: tasks/common/cloudfront/oai.yml
+
+- name: create S3 bucket
+  s3_bucket:
+    name: "{{ webapp_bucket }}"
+    policy: "{{ lookup('template','files/s3-allow-oai-policy.json.j2') }}"
+
+- name: configure CORS policy for S3 bucket
+  command: aws s3api put-bucket-cors --bucket "{{ webapp_bucket}}" --cors-configuration '{{ lookup('file', 'files/s3-cors-policy.json') }}'
+
+- name: create CloudFront distribution for assets
+  import_tasks: tasks/common/cloudfront/distribution.yml
+  vars:
+    cloudfront_distribution_name: "{{ webapp_cloudfront_distribution_name }}"
+    cloudfront_distribution_template: tasks/webapp/files/create-cloudfront-distro.json.j2
+    bucket_name: "{{ webapp_bucket }}"
+  tags: setup
+
+- name: update public DNS record
+  route53:
+    state: present
+    zone: "{{ public_dns_zone }}"
+    record: "{{ item }}"
+    type: A
+    alias: true
+    # CloudFront's Alias Hosted Zone ID: https://docs.aws.amazon.com/general/latest/gr/rande.html
+    alias_hosted_zone_id: Z2FDTNDATAQYW2
+    overwrite: true
+    ttl: 300
+    value: "{{ cloudfront_distribution_domain }}"
+  with_items: "{{ webapp_domains }}"
+  when: public_dns_zone is defined

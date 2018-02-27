@@ -1,0 +1,7 @@
+- name: check for rollback assets
+  tags: rollback
+  command: aws s3 ls s3://{{ webapp.bucket }}/rollback/{{ webapp.name }}/ --human-readable --summarize
+
+- name: rollback assets
+  tags: rollback
+  command: aws s3 sync --delete --exact-timestamps s3://{{ webapp.bucket }}/rollback/{{ webapp.name }}/ s3://{{ webapp.bucket }}/{{ webapp.name }}/

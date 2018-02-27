@@ -1,0 +1,15 @@
+- name: delete temp unzip directory
+  file:
+    path: temp/{{ build_name }}/build
+    state: absent
+
+- name: create directory to unzip build
+  file:
+    path: temp/{{ build_name }}/build
+    state: directory
+
+- name: unzip the build
+  unarchive:
+    src: temp/{{ build_name }}/{{ build_artifact }}
+    remote_src: yes
+    dest: temp/{{ build_name }}/build

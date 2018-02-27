@@ -1,0 +1,16 @@
+[vpc]
+vpc.tomwwright
+
+[webapp]
+folio.tomwwright
+tinydude.tomwwright
+life.tomwwright
+
+[project.tomwwright]
+vpc.tomwwright
+folio.tomwwright
+tinydude.tomwwright
+life.tomwwright
+
+[environment.dev:children]
+project.tomwwright
