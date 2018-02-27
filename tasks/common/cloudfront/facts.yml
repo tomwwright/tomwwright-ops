@@ -7,6 +7,8 @@
   set_fact:
     cloudfront_distribution_id: "{{ cloudfront_distributions.stdout | from_json | json_query(id_query) }}"
     cloudfront_distribution_domain: "{{ cloudfront_distributions.stdout | from_json | json_query(domain_query) }}"
+    cloudfront_distribution_arn: "{{ cloudfront_distributions.stdout | from_json | json_query(arn_query) }}"
   vars:
-    id_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].Comment"
+    id_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].Id"
     domain_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].DomainName"
+    arn_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].Arn"

@@ -8,7 +8,8 @@ public_dns_zone: tomwwright.com
 
 # ACM
 acm_certificate_domain: "*.tomwwright.com"
-acm_certificate_extra_domains: []
+acm_certificate_extra_domains:
+  - tomwwright.com
 
 # credentials for AWS
 aws_region: ap-southeast-2
