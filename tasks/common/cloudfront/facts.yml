@@ -1,6 +1,6 @@
 - name: list CloudFront distributions
   command: aws cloudfront list-distributions
-  changd_when: false
+  changed_when: false
   register: cloudfront_distributions
 
 - name: find existing CloudFront distribution
@@ -11,4 +11,4 @@
   vars:
     id_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].Id"
     domain_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].DomainName"
-    arn_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].Arn"
+    arn_query: "DistributionList.Items[?Comment=='{{ cloudfront_distribution_name }}'] | [0].ARN"
